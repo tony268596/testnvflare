@@ -99,7 +99,8 @@ class SimulatorRunner(FLComponent):
         )
         args.set = []
         return args
-
+    def get_client_name(self):
+        return self.client_names
     def setup(self):
         running_dir = os.getcwd()
         if self.workspace is None:
@@ -120,7 +121,7 @@ class SimulatorRunner(FLComponent):
             if self.args.n_clients:
                 for i in range(self.args.n_clients):
                     self.client_names.append("site-" + str(i + 1))
-
+        # self.client_names = self.args.clients.strip().split(",")
         log_config_file_path = os.path.join(self.args.workspace, "startup", WorkspaceConstants.LOGGING_CONFIG)
         if not os.path.isfile(log_config_file_path):
             log_config_file_path = os.path.join(os.path.dirname(__file__), WorkspaceConstants.LOGGING_CONFIG)

@@ -32,6 +32,7 @@ from nvflare.apis.signal import Signal
 from nvflare.app_common.abstract.model import make_model_learnable, model_learnable_to_dxo
 from nvflare.app_common.app_constant import AppConstants
 from nvflare.app_opt.pt.model_persistence_format_manager import PTModelPersistenceFormatManager
+from nvflare.private.fed.app.simulator.simulator_runner import SimulatorRunner
 
 
 class Cifar10Trainer(Executor):
@@ -182,7 +183,7 @@ class Cifar10Trainer(Executor):
                     running_loss = 0.0
 
     def _save_local_model(self, fl_ctx: FLContext):
-        tmp = int(fl_ctx.get_identity_name()[5])
+        # tmp = int(fl_ctx.get_identity_name()[5])
         
         run_dir = fl_ctx.get_engine().get_workspace().get_run_dir(fl_ctx.get_prop(ReservedKey.RUN_NUM))
         models_dir = os.path.join(run_dir, PTConstants.PTModelsDir)
@@ -190,12 +191,19 @@ class Cifar10Trainer(Executor):
         if not os.path.exists(models_dir):
             os.makedirs(models_dir)
 
-        # 這邊用tmp 去讀fl_ctx.get_identity_name()[5]看是site_多少
-        if tmp == 2:
-            model_path = models_dir + '/Local_model' + str(tmp) + '.pt'
-        elif tmp == 1:
-            model_path = models_dir + '/Local_model' + str(tmp) + '.pt'
-        # print(f"\n\n\n{model_path}\n\n\n")
+        # # 這邊用tmp 去讀fl_ctx.get_identity_name()[5]看是site_多少
+        # if tmp == 2:
+        #     model_path = models_dir + '/Local_model' + str(tmp) + '.pt'
+        # elif tmp == 1:
+        #     model_path = models_dir + '/Local_model' + str(tmp) + '.pt'
+        # # print(f"\n\n\n{model_path}\n\n\n")
+
+        model_path = models_dir + '/Local_model_' + fl_ctx.get_identity_name() + '.pt'
+
+        # print(f"\n\n\n{SimulatorRunner.get_client_name()}\n\n\n")
+
+        # print(f"\n\n\n{fl_ctx.get_identity_name()}\n\n\n")
+
         ml = make_model_learnable(self.model.state_dict(), {})
         self.persistence_manager.update(ml)
         torch.save(self.persistence_manager.to_persistence_dict(), model_path)
